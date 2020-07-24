@@ -15,18 +15,18 @@
  */
 package com.netflix.spinnaker.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spectator.api.Registry;
-import com.netflix.spinnaker.cats.module.CatsModule;
+import com.netflix.spinnaker.accounts.*;
 import com.netflix.spinnaker.clouddriver.kubernetes.caching.KubernetesV2Provider;
-import com.netflix.spinnaker.clouddriver.kubernetes.caching.KubernetesV2ProviderSynchronizable;
-import com.netflix.spinnaker.clouddriver.kubernetes.caching.agent.KubernetesV2CachingAgentDispatcher;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurationProperties;
 import com.netflix.spinnaker.clouddriver.kubernetes.health.KubernetesHealthIndicator;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.ManifestProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.NoopManifestProvider;
-import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesV2Credentials;
+import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -50,6 +50,54 @@ public class KubernetesConfiguration {
     return new KubernetesConfigurationProperties();
   }
 
+  // If we have a reloadable repository, we schedule it to be reloaded
+  @ConditionalOnBean(
+      value = KubernetesNamedAccountCredentials.class,
+      parameterizedContainer = ReloadableAccountRepository.class)
+  public Reloader<KubernetesNamedAccountCredentials> reloadAccounts(
+      ReloadableAccountRepository<KubernetesNamedAccountCredentials> accountRepository,
+      @Value("${accounts.kubernetes.frequencyMs") long frequencyMs) {
+    return new Reloader<>(accountRepository, frequencyMs);
+  }
+
+  // If externalSource is used, configure it
+  @Bean
+  @ConditionalOnProperty("accounts.kubernetes.externalSource.endpoint")
+  public AccountSource<KubernetesConfigurationProperties.ManagedAccount> getExternalSource(
+      String endpoint, ObjectMapper objectMapper) {
+    return new RemoteAccountSource<>(endpoint, objectMapper);
+  }
+
+  // If no custom Kubernetes repository, we'll make one
+  @Bean
+  @ConditionalOnBean(
+      value = KubernetesConfigurationProperties.ManagedAccount.class,
+      parameterizedContainer = AccountSource.class)
+  public AccountRepository<KubernetesNamedAccountCredentials>
+      kubernetesAccountRepositoryCustomSource(
+          AccountSource<KubernetesConfigurationProperties.ManagedAccount> accountSource,
+          AccountParser<
+                  KubernetesConfigurationProperties.ManagedAccount,
+                  KubernetesNamedAccountCredentials>
+              parser,
+          AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
+    return new MapBackedAccountRepository<>(accountSource, parser, eventHandler);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(
+      value = KubernetesNamedAccountCredentials.class,
+      parameterizedContainer = AccountRepository.class)
+  public AccountRepository<KubernetesNamedAccountCredentials> kubernetesAccountRepository(
+      KubernetesConfigurationProperties configurationProperties,
+      AccountParser<
+              KubernetesConfigurationProperties.ManagedAccount, KubernetesNamedAccountCredentials>
+          parser,
+      AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
+    return new MapBackedAccountRepository<>(
+        configurationProperties.getAccounts(), parser, eventHandler);
+  }
+
   @Bean
   public KubernetesHealthIndicator kubernetesHealthIndicator(
       Registry registry, AccountCredentialsProvider accountCredentialsProvider) {
@@ -61,22 +109,22 @@ public class KubernetesConfiguration {
     return new KubernetesV2Provider();
   }
 
-  @Bean
-  public KubernetesV2ProviderSynchronizable kubernetesV2ProviderSynchronizable(
-      KubernetesV2Provider kubernetesV2Provider,
-      AccountCredentialsRepository accountCredentialsRepository,
-      KubernetesV2CachingAgentDispatcher kubernetesV2CachingAgentDispatcher,
-      KubernetesConfigurationProperties kubernetesConfigurationProperties,
-      KubernetesV2Credentials.Factory credentialFactory,
-      CatsModule catsModule) {
-    return new KubernetesV2ProviderSynchronizable(
-        kubernetesV2Provider,
-        accountCredentialsRepository,
-        kubernetesV2CachingAgentDispatcher,
-        kubernetesConfigurationProperties,
-        credentialFactory,
-        catsModule);
-  }
+  //  @Bean
+  //  public KubernetesV2ProviderSynchronizable kubernetesV2ProviderSynchronizable(
+  //      KubernetesV2Provider kubernetesV2Provider,
+  //      AccountCredentialsRepository accountCredentialsRepository,
+  //      KubernetesV2CachingAgentDispatcher kubernetesV2CachingAgentDispatcher,
+  //      KubernetesConfigurationProperties kubernetesConfigurationProperties,
+  //      KubernetesV2Credentials.Factory credentialFactory,
+  //      CatsModule catsModule) {
+  //    return new KubernetesV2ProviderSynchronizable(
+  //        kubernetesV2Provider,
+  //        accountCredentialsRepository,
+  //        kubernetesV2CachingAgentDispatcher,
+  //        kubernetesConfigurationProperties,
+  //        credentialFactory,
+  //        catsModule);
+  //  }
 
   @Bean
   @ConditionalOnMissingBean(ManifestProvider.class)

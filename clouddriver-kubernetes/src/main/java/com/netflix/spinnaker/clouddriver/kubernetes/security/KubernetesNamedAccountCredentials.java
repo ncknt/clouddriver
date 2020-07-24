@@ -19,6 +19,7 @@ package com.netflix.spinnaker.clouddriver.kubernetes.security;
 
 import static lombok.EqualsAndHashCode.Include;
 
+import com.netflix.spinnaker.clouddriver.kubernetes.KubernetesCloudProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurationProperties.ManagedAccount;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.LinkedDockerRegistryConfiguration;
 import com.netflix.spinnaker.clouddriver.security.AbstractAccountCredentials;
@@ -83,5 +84,10 @@ public class KubernetesNamedAccountCredentials<C extends KubernetesCredentials>
 
   public List<LinkedDockerRegistryConfiguration> getDockerRegistries() {
     return credentials.getDockerRegistries();
+  }
+
+  @Override
+  public String getType() {
+    return KubernetesCloudProvider.ID;
   }
 }
