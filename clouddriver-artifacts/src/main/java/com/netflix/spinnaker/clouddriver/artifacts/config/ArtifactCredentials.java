@@ -18,6 +18,7 @@
 package com.netflix.spinnaker.clouddriver.artifacts.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.netflix.spinnaker.accounts.Account;
 import com.netflix.spinnaker.kork.annotations.NonnullByDefault;
 import com.netflix.spinnaker.kork.artifacts.model.Artifact;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.NotImplementedException;
 
 @NonnullByDefault
-public interface ArtifactCredentials {
+public interface ArtifactCredentials extends Account {
   String getName();
 
   /**

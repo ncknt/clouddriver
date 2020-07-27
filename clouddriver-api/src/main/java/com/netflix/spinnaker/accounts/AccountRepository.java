@@ -28,4 +28,6 @@ public interface AccountRepository<T extends Account> {
   T update(String key, T account);
 
   void delete(String key);
+
+  String getType();
 }

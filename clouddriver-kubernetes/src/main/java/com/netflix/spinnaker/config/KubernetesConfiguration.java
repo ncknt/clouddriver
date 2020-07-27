@@ -18,6 +18,7 @@ package com.netflix.spinnaker.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spinnaker.accounts.*;
+import com.netflix.spinnaker.clouddriver.kubernetes.KubernetesCloudProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.caching.KubernetesV2Provider;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurationProperties;
 import com.netflix.spinnaker.clouddriver.kubernetes.health.KubernetesHealthIndicator;
@@ -81,7 +82,8 @@ public class KubernetesConfiguration {
                   KubernetesNamedAccountCredentials>
               parser,
           AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
-    return new MapBackedAccountRepository<>(accountSource, parser, eventHandler);
+    return new MapBackedAccountRepository<>(
+        KubernetesCloudProvider.ID, accountSource, parser, eventHandler);
   }
 
   @Bean
@@ -95,7 +97,7 @@ public class KubernetesConfiguration {
           parser,
       AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
     return new MapBackedAccountRepository<>(
-        configurationProperties.getAccounts(), parser, eventHandler);
+        KubernetesCloudProvider.ID, configurationProperties.getAccounts(), parser, eventHandler);
   }
 
   @Bean

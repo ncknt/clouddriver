@@ -18,6 +18,7 @@ package com.netflix.spinnaker.accounts;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 public class MapBackedAccountRepository<P extends AccountProperties, T extends Account>
     implements ReloadableAccountRepository<T> {
@@ -25,21 +26,29 @@ public class MapBackedAccountRepository<P extends AccountProperties, T extends A
   protected AccountSource<P> accountSource;
   protected AccountEventHandler<T> eventHandler;
   protected AccountParser<P, T> parser;
+  @Getter protected String type;
 
   public MapBackedAccountRepository(
-      AccountSource<P> source, AccountParser<P, T> parser, AccountEventHandler<T> eventHandler) {
-    this(parser, eventHandler);
+      String type,
+      AccountSource<P> source,
+      AccountParser<P, T> parser,
+      AccountEventHandler<T> eventHandler) {
+    this(type, parser, eventHandler);
     this.accountSource = source;
   }
 
   public MapBackedAccountRepository(
-      Collection<P> props, AccountParser<P, T> parser, AccountEventHandler<T> eventHandler) {
-    this(parser, eventHandler);
+      String type,
+      Collection<P> props,
+      AccountParser<P, T> parser,
+      AccountEventHandler<T> eventHandler) {
+    this(type, parser, eventHandler);
     this.parse(props);
   }
 
   protected MapBackedAccountRepository(
-      AccountParser<P, T> parser, AccountEventHandler<T> eventHandler) {
+      String type, AccountParser<P, T> parser, AccountEventHandler<T> eventHandler) {
+    this.type = type;
     this.eventHandler = eventHandler;
     this.parser = parser;
   }
@@ -63,12 +72,14 @@ public class MapBackedAccountRepository<P extends AccountProperties, T extends A
     accountProps.stream()
         .filter(p -> this.accounts.containsKey(p.getName()))
         .map(parser::parse)
+        .filter(Objects::nonNull)
         .forEach(a -> update(a.getName(), a));
 
     // new accounts
     accountProps.stream()
         .filter(p -> !this.accounts.containsKey(p.getName()))
         .map(parser::parse)
+        .filter(Objects::nonNull)
         .forEach(a -> save(a.getName(), a));
   }
 

@@ -17,55 +17,53 @@
 
 package com.netflix.spinnaker.clouddriver.artifacts;
 
-import com.google.common.base.Strings;
+import com.netflix.spinnaker.accounts.AccountRepository;
+import com.netflix.spinnaker.accounts.CompositeAccountRepository;
 import com.netflix.spinnaker.clouddriver.artifacts.config.ArtifactCredentials;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ArtifactCredentialsRepository {
-  @Getter private final List<ArtifactCredentials> allCredentials;
+public class ArtifactCredentialsRepository extends CompositeAccountRepository<ArtifactCredentials> {
+  //  @Getter private final List<ArtifactCredentials> allCredentials;
 
-  public ArtifactCredentialsRepository(List<List<? extends ArtifactCredentials>> allCredentials) {
-    this.allCredentials =
-        Collections.unmodifiableList(
-            allCredentials.stream()
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList()));
+  public ArtifactCredentialsRepository(
+      List<AccountRepository<? extends ArtifactCredentials>> repositories) {
+    super(repositories);
+    //    this.allCredentials =
+    //        Collections.unmodifiableList(
+    //            allCredentials.stream()
+    //                .filter(Objects::nonNull)
+    //                .flatMap(Collection::stream)
+    //                .collect(Collectors.toList()));
   }
 
-  private ArtifactCredentials getCredentials(String accountName) {
-    return getAllCredentials().stream()
-        .filter(e -> e.getName().equals(accountName))
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    "No credentials with name '" + accountName + "' could be found."));
-  }
+  //  private ArtifactCredentials getCredentials(String accountName) {
+  //    return getAllCredentials().stream()
+  //        .filter(e -> e.getName().equals(accountName))
+  //        .findFirst()
+  //        .orElseThrow(
+  //            () ->
+  //                new IllegalArgumentException(
+  //                    "No credentials with name '" + accountName + "' could be found."));
+  //  }
 
-  public ArtifactCredentials getCredentials(String accountName, String type) {
-    if (Strings.isNullOrEmpty(accountName)) {
-      throw new IllegalArgumentException(
-          "An artifact account must be supplied to download this artifact: " + accountName);
-    }
-
-    ArtifactCredentials credentials = getCredentials(accountName);
-    if (!credentials.handlesType(type)) {
-      throw new IllegalArgumentException(
-          "Artifact credentials '"
-              + accountName
-              + "' cannot handle artifacts of type '"
-              + type
-              + "'");
-    }
-
-    return credentials;
-  }
+  //  public ArtifactCredentials getCredentials(String accountName, String type) {
+  //    if (Strings.isNullOrEmpty(accountName)) {
+  //      throw new IllegalArgumentException(
+  //          "An artifact account must be supplied to download this artifact: " + accountName);
+  //    }
+  //
+  //    ArtifactCredentials credentials = getCredentials(accountName);
+  //    if (!credentials.handlesType(type)) {
+  //      throw new IllegalArgumentException(
+  //          "Artifact credentials '"
+  //              + accountName
+  //              + "' cannot handle artifacts of type '"
+  //              + type
+  //              + "'");
+  //    }
+  //
+  //    return credentials;
+  //  }
 }

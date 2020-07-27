@@ -17,12 +17,13 @@
 
 package com.netflix.spinnaker.clouddriver.artifacts.bitbucket;
 
+import com.netflix.spinnaker.accounts.*;
 import com.squareup.okhttp.OkHttpClient;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -37,10 +38,22 @@ class BitbucketArtifactConfiguration {
   private final BitbucketArtifactProviderProperties bitbucketArtifactProviderProperties;
 
   @Bean
-  List<? extends BitbucketArtifactCredentials> bitbucketArtifactCredentials(
-      OkHttpClient okHttpClient) {
-    return bitbucketArtifactProviderProperties.getAccounts().stream()
-        .map(
+  @ConditionalOnMissingBean(
+      value = BitbucketArtifactCredentials.class,
+      parameterizedContainer = AccountRepository.class)
+  AccountRepository<BitbucketArtifactCredentials> bitbucketRepository(
+      OkHttpClient okHttpClient,
+      AccountSynchronizer accountSynchronizer,
+      Optional<AccountSource<BitbucketArtifactAccount>> customAccountSource,
+      @Value("${account.artifacts.bitbucket.refreshFrequencyMs:0}") long refreshFrequencyMs) {
+    return AccountRepositoryDescriptor
+        .<BitbucketArtifactCredentials, BitbucketArtifactAccount>builder()
+        .type("BitBucket")
+        .accountSynchronizer(accountSynchronizer)
+        .customAccountSource(customAccountSource)
+        .springAccountSource(bitbucketArtifactProviderProperties::getAccounts)
+        .refreshFrequencyMs(refreshFrequencyMs)
+        .parser(
             a -> {
               try {
                 return new BitbucketArtifactCredentials(a, okHttpClient);
@@ -49,7 +62,24 @@ class BitbucketArtifactConfiguration {
                 return null;
               }
             })
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .build()
+        .createRepository();
   }
+
+  //  @Bean
+  //  List<? extends BitbucketArtifactCredentials> bitbucketArtifactCredentials(
+  //      OkHttpClient okHttpClient) {
+  //    return bitbucketArtifactProviderProperties.getAccounts().stream()
+  //        .map(
+  //            a -> {
+  //              try {
+  //                return new BitbucketArtifactCredentials(a, okHttpClient);
+  //              } catch (Exception e) {
+  //                log.warn("Failure instantiating Bitbucket artifact account {}: ", a, e);
+  //                return null;
+  //              }
+  //            })
+  //        .filter(Objects::nonNull)
+  //        .collect(Collectors.toList());
+  //  }
 }

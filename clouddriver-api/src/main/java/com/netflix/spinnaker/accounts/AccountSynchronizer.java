@@ -35,4 +35,8 @@ public class AccountSynchronizer {
         .filter(r -> r.getFrequencyMs() > 0)
         .forEach(r -> executor.schedule(r, r.getFrequencyMs(), TimeUnit.MILLISECONDS));
   }
+
+  public void schedule(Reloader<?> reloader) {
+    executor.schedule(reloader, reloader.getFrequencyMs(), TimeUnit.MILLISECONDS);
+  }
 }
