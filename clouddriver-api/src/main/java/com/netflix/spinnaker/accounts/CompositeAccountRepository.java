@@ -19,7 +19,7 @@ package com.netflix.spinnaker.accounts;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CompositeAccountRepository<T extends Account> {
+public class CompositeAccountRepository<T extends Credentials> {
   private Map<String, AccountRepository<? extends T>> allRepositories;
 
   public CompositeAccountRepository(List<AccountRepository<? extends T>> repositories) {

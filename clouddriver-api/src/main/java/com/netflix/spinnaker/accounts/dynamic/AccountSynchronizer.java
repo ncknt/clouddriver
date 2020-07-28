@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.accounts;
+package com.netflix.spinnaker.accounts.dynamic;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
+
+import com.netflix.spinnaker.accounts.Reloader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty("accounts.reload.enabled")
 public class AccountSynchronizer {
   @Autowired private List<Reloader> reloaders = new ArrayList<>();
   private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);

@@ -20,11 +20,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Getter;
 
-public class MapBackedAccountRepository<P extends AccountProperties, T extends Account>
+public class MapBackedAccountRepository<P extends Account, T extends Credentials>
     implements ReloadableAccountRepository<T> {
   protected Map<String, T> accounts = new HashMap<>();
   protected AccountSource<P> accountSource;
-  protected AccountEventHandler<T> eventHandler;
+  protected CredentialsLifecycleHandler<T> eventHandler;
   protected AccountParser<P, T> parser;
   @Getter protected String type;
 
@@ -32,7 +32,7 @@ public class MapBackedAccountRepository<P extends AccountProperties, T extends A
       String type,
       AccountSource<P> source,
       AccountParser<P, T> parser,
-      AccountEventHandler<T> eventHandler) {
+      CredentialsLifecycleHandler<T> eventHandler) {
     this(type, parser, eventHandler);
     this.accountSource = source;
   }
@@ -41,13 +41,13 @@ public class MapBackedAccountRepository<P extends AccountProperties, T extends A
       String type,
       Collection<P> props,
       AccountParser<P, T> parser,
-      AccountEventHandler<T> eventHandler) {
+      CredentialsLifecycleHandler<T> eventHandler) {
     this(type, parser, eventHandler);
     this.parse(props);
   }
 
   protected MapBackedAccountRepository(
-      String type, AccountParser<P, T> parser, AccountEventHandler<T> eventHandler) {
+      String type, AccountParser<P, T> parser, CredentialsLifecycleHandler<T> eventHandler) {
     this.type = type;
     this.eventHandler = eventHandler;
     this.parser = parser;

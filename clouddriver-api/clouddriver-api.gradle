@@ -29,6 +29,12 @@ dependencies {
   // TEMP
   implementation "com.fasterxml.jackson.core:jackson-databind"
   implementation "org.springframework.security:spring-security-core"
+  implementation "org.springframework.boot:spring-boot-starter-web"
+  implementation "com.squareup.okhttp:okhttp"
+  implementation "com.squareup.okhttp:okhttp-apache"
+  implementation "com.squareup.okhttp:okhttp-urlconnection"
+  implementation "com.squareup.retrofit:converter-jackson"
+  implementation "com.squareup.retrofit:retrofit"
 
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-api")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine")

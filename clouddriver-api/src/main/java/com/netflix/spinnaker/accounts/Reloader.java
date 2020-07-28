@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class Reloader<T extends Account> implements Runnable {
+public class Reloader<T extends Credentials> implements Runnable {
   private final ReloadableAccountRepository<T> reloadableAccountRepository;
   @Getter private final long frequencyMs;
 

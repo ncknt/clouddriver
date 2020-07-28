@@ -21,12 +21,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spinnaker.accounts.AccountRepository;
 import com.netflix.spinnaker.accounts.AccountRepositoryDescriptor;
 import com.netflix.spinnaker.accounts.AccountSource;
-import com.netflix.spinnaker.accounts.AccountSynchronizer;
 import com.squareup.okhttp.OkHttpClient;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -48,15 +46,11 @@ class GitHubArtifactConfiguration {
       parameterizedContainer = AccountRepository.class)
   AccountRepository<GitHubArtifactCredentials> bitbucketRepository(
       OkHttpClient okHttpClient,
-      AccountSynchronizer accountSynchronizer,
-      Optional<AccountSource<GitHubArtifactAccount>> customAccountSource,
-      @Value("${account.artifacts.github.refreshFrequencyMs:0}") long refreshFrequencyMs) {
+      Optional<AccountSource<GitHubArtifactAccount>> customAccountSource) {
     return AccountRepositoryDescriptor.<GitHubArtifactCredentials, GitHubArtifactAccount>builder()
         .type("BitBucket")
-        .accountSynchronizer(accountSynchronizer)
         .customAccountSource(customAccountSource)
         .springAccountSource(gitHubArtifactProviderProperties::getAccounts)
-        .refreshFrequencyMs(refreshFrequencyMs)
         .parser(
             a -> {
               try {

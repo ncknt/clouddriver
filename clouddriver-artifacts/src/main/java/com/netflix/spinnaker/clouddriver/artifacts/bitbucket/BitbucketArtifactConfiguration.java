@@ -18,6 +18,7 @@
 package com.netflix.spinnaker.clouddriver.artifacts.bitbucket;
 
 import com.netflix.spinnaker.accounts.*;
+import com.netflix.spinnaker.accounts.dynamic.AccountSynchronizer;
 import com.squareup.okhttp.OkHttpClient;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -43,16 +44,12 @@ class BitbucketArtifactConfiguration {
       parameterizedContainer = AccountRepository.class)
   AccountRepository<BitbucketArtifactCredentials> bitbucketRepository(
       OkHttpClient okHttpClient,
-      AccountSynchronizer accountSynchronizer,
-      Optional<AccountSource<BitbucketArtifactAccount>> customAccountSource,
-      @Value("${account.artifacts.bitbucket.refreshFrequencyMs:0}") long refreshFrequencyMs) {
+      Optional<AccountSource<BitbucketArtifactAccount>> customAccountSource) {
     return AccountRepositoryDescriptor
         .<BitbucketArtifactCredentials, BitbucketArtifactAccount>builder()
         .type("BitBucket")
-        .accountSynchronizer(accountSynchronizer)
         .customAccountSource(customAccountSource)
         .springAccountSource(bitbucketArtifactProviderProperties::getAccounts)
-        .refreshFrequencyMs(refreshFrequencyMs)
         .parser(
             a -> {
               try {

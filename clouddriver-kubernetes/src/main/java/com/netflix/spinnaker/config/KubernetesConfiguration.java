@@ -15,7 +15,6 @@
  */
 package com.netflix.spinnaker.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spinnaker.accounts.*;
 import com.netflix.spinnaker.clouddriver.kubernetes.KubernetesCloudProvider;
@@ -24,10 +23,9 @@ import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurati
 import com.netflix.spinnaker.clouddriver.kubernetes.health.KubernetesHealthIndicator;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.ManifestProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.NoopManifestProvider;
+import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentialFactory;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -37,6 +35,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.util.Optional;
 
 @Configuration
 @EnableConfigurationProperties
@@ -51,53 +51,22 @@ public class KubernetesConfiguration {
     return new KubernetesConfigurationProperties();
   }
 
-  // If we have a reloadable repository, we schedule it to be reloaded
-  @ConditionalOnBean(
-      value = KubernetesNamedAccountCredentials.class,
-      parameterizedContainer = ReloadableAccountRepository.class)
-  public Reloader<KubernetesNamedAccountCredentials> reloadAccounts(
-      ReloadableAccountRepository<KubernetesNamedAccountCredentials> accountRepository,
-      @Value("${accounts.kubernetes.frequencyMs") long frequencyMs) {
-    return new Reloader<>(accountRepository, frequencyMs);
-  }
-
-  // If externalSource is used, configure it
-  @Bean
-  @ConditionalOnProperty("accounts.kubernetes.externalSource.endpoint")
-  public AccountSource<KubernetesConfigurationProperties.ManagedAccount> getExternalSource(
-      String endpoint, ObjectMapper objectMapper) {
-    return new RemoteAccountSource<>(endpoint, objectMapper);
-  }
-
-  // If no custom Kubernetes repository, we'll make one
-  @Bean
-  @ConditionalOnBean(
-      value = KubernetesConfigurationProperties.ManagedAccount.class,
-      parameterizedContainer = AccountSource.class)
-  public AccountRepository<KubernetesNamedAccountCredentials>
-      kubernetesAccountRepositoryCustomSource(
-          AccountSource<KubernetesConfigurationProperties.ManagedAccount> accountSource,
-          AccountParser<
-                  KubernetesConfigurationProperties.ManagedAccount,
-                  KubernetesNamedAccountCredentials>
-              parser,
-          AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
-    return new MapBackedAccountRepository<>(
-        KubernetesCloudProvider.ID, accountSource, parser, eventHandler);
-  }
-
   @Bean
   @ConditionalOnMissingBean(
       value = KubernetesNamedAccountCredentials.class,
       parameterizedContainer = AccountRepository.class)
   public AccountRepository<KubernetesNamedAccountCredentials> kubernetesAccountRepository(
       KubernetesConfigurationProperties configurationProperties,
-      AccountParser<
-              KubernetesConfigurationProperties.ManagedAccount, KubernetesNamedAccountCredentials>
-          parser,
-      AccountEventHandler<KubernetesNamedAccountCredentials> eventHandler) {
-    return new MapBackedAccountRepository<>(
-        KubernetesCloudProvider.ID, configurationProperties.getAccounts(), parser, eventHandler);
+      Optional<AccountSource<KubernetesConfigurationProperties.ManagedAccount>> customAccountSource,
+      KubernetesCredentialFactory kubernetesCredentialFactory,
+      CredentialsLifecycleHandler<KubernetesNamedAccountCredentials> eventHandler) {
+    return AccountRepositoryDescriptor.<KubernetesNamedAccountCredentials, KubernetesConfigurationProperties.ManagedAccount>builder()
+      .type(KubernetesCloudProvider.ID)
+      .customAccountSource(customAccountSource)
+      .springAccountSource(configurationProperties::getAccounts)
+      .parser(a -> new KubernetesNamedAccountCredentials(a, kubernetesCredentialFactory))
+      .build()
+      .createRepository();
   }
 
   @Bean

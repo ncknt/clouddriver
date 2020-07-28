@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.accounts;
+package com.netflix.spinnaker.accounts.external;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@RequiredArgsConstructor
-public class RemoteAccountSource<T extends AccountProperties> implements AccountSource<T> {
-  protected final String endpoint;
-  protected final ObjectMapper objectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
-  @Override
-  public List<T> getAccounts() {
-    // TODO get from remote endpoint, parse with object mapper and return
-    return Collections.emptyList();
+@ConfigurationProperties("account.external-source")
+public class ExternalSourceAccountRepositoryConfig {
+  @Getter
+  private Map<String, AccountRepository> repositories = new HashMap<>();
+
+  @Data
+  public static class AccountRepository {
+    private String endpoint;
+    private String parserClass;
   }
 }

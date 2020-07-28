@@ -16,6 +16,6 @@
 
 package com.netflix.spinnaker.accounts;
 
-public interface ReloadableAccountRepository<T extends Account> extends AccountRepository<T> {
+public interface ReloadableAccountRepository<T extends Credentials> extends AccountRepository<T> {
   void load();
 }

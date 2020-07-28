@@ -18,7 +18,7 @@ package com.netflix.spinnaker.accounts;
 
 import java.util.List;
 
-public interface AccountSource<T extends AccountProperties> {
+public interface AccountSource<T extends Account> {
 
   List<T> getAccounts();
 }

@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.accounts;
+package com.netflix.spinnaker.accounts.dynamic;
 
-public interface AccountEventHandler<T extends Account> {
+import lombok.Data;
+import lombok.Getter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-  void accountAdded(T account);
+import java.util.HashMap;
+import java.util.Map;
 
-  void accountUpdated(T account);
+@ConfigurationProperties("account.dynamic")
+public class ReloadAccountRepositoryConfig {
+  @Getter
+  private Map<String, AccountRepository> repositories = new HashMap<>();
 
-  void accountDeleted(T account);
+  @Data
+  public static class AccountRepository {
+    private String type;
+    private String endpoint;
+    private long reloadFrequencyMs = 0;
+  }
 }

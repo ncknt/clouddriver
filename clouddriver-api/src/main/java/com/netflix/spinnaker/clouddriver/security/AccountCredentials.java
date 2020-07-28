@@ -16,7 +16,7 @@
 
 package com.netflix.spinnaker.clouddriver.security;
 
-import com.netflix.spinnaker.accounts.Account;
+import com.netflix.spinnaker.accounts.Credentials;
 import com.netflix.spinnaker.kork.annotations.Beta;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
  * @param <T> - type of credential object to be returned
  */
 @Beta
-public interface AccountCredentials<T> extends Account {
+public interface AccountCredentials<T> extends Credentials {
   /**
    * Provides the name of the account to be returned.
    *

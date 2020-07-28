@@ -16,7 +16,7 @@
 
 package com.netflix.spinnaker.clouddriver.kubernetes.security;
 
-import com.netflix.spinnaker.accounts.AccountEventHandler;
+import com.netflix.spinnaker.accounts.CredentialsLifecycleHandler;
 import com.netflix.spinnaker.cats.agent.Agent;
 import com.netflix.spinnaker.cats.module.CatsModule;
 import com.netflix.spinnaker.clouddriver.kubernetes.caching.KubernetesV2Provider;
@@ -32,8 +32,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class KubernetesAccountEventHandler
-    implements AccountEventHandler<KubernetesNamedAccountCredentials> {
+public class KubernetesCredentialsLifecycleHandler
+    implements CredentialsLifecycleHandler<KubernetesNamedAccountCredentials> {
   protected final KubernetesV2Provider provider;
   protected final KubernetesV2CachingAgentDispatcher cachingAgentDispatcher;
   protected final CatsModule catsModule;

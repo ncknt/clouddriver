@@ -16,6 +16,11 @@
 
 package com.netflix.spinnaker.accounts;
 
-public interface AccountProperties {
-  String getName();
+public interface CredentialsLifecycleHandler<T extends Credentials> {
+
+  void accountAdded(T account);
+
+  void accountUpdated(T account);
+
+  void accountDeleted(T account);
 }

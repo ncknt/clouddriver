@@ -18,7 +18,7 @@ package com.netflix.spinnaker.accounts;
 
 import java.util.Set;
 
-public interface AccountRepository<T extends Account> {
+public interface AccountRepository<T extends Credentials> {
   T getOne(String key);
 
   Set<T> getAll();

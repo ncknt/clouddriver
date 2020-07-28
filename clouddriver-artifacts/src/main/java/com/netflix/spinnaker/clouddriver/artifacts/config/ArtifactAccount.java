@@ -17,6 +17,6 @@
 
 package com.netflix.spinnaker.clouddriver.artifacts.config;
 
-import com.netflix.spinnaker.accounts.AccountProperties;
+import com.netflix.spinnaker.accounts.Account;
 
-public interface ArtifactAccount extends AccountProperties {}
+public interface ArtifactAccount extends Account {}
