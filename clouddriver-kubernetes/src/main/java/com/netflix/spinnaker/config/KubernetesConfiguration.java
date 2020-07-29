@@ -26,6 +26,7 @@ import com.netflix.spinnaker.clouddriver.kubernetes.model.NoopManifestProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentialFactory;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -35,8 +36,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.Optional;
 
 @Configuration
 @EnableConfigurationProperties
@@ -60,13 +59,15 @@ public class KubernetesConfiguration {
       Optional<AccountSource<KubernetesConfigurationProperties.ManagedAccount>> customAccountSource,
       KubernetesCredentialFactory kubernetesCredentialFactory,
       CredentialsLifecycleHandler<KubernetesNamedAccountCredentials> eventHandler) {
-    return AccountRepositoryDescriptor.<KubernetesNamedAccountCredentials, KubernetesConfigurationProperties.ManagedAccount>builder()
-      .type(KubernetesCloudProvider.ID)
-      .customAccountSource(customAccountSource)
-      .springAccountSource(configurationProperties::getAccounts)
-      .parser(a -> new KubernetesNamedAccountCredentials(a, kubernetesCredentialFactory))
-      .build()
-      .createRepository();
+    return AccountRepositoryDescriptor
+        .<KubernetesNamedAccountCredentials, KubernetesConfigurationProperties.ManagedAccount>
+            builder()
+        .type(KubernetesCloudProvider.ID)
+        .customAccountSource(customAccountSource)
+        .springAccountSource(configurationProperties::getAccounts)
+        .parser(a -> new KubernetesNamedAccountCredentials(a, kubernetesCredentialFactory))
+        .build()
+        .createRepository();
   }
 
   @Bean

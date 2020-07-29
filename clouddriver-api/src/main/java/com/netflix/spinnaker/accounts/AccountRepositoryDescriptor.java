@@ -19,7 +19,6 @@ package com.netflix.spinnaker.accounts;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import lombok.Builder;
 
 @Builder
@@ -32,7 +31,7 @@ public class AccountRepositoryDescriptor<T extends Credentials, U extends Accoun
 
   public AccountRepository<T> createRepository() {
     AccountSource<U> source = customAccountSource.orElse(() -> springAccountSource.get());
-    CredentialsLifecycleHandler<T> handler = eventHandler.orElseGet(null);
+    CredentialsLifecycleHandler<T> handler = eventHandler.orElse(null);
     MapBackedAccountRepository repository =
         new MapBackedAccountRepository<>(type, source, parser, handler);
     return repository;

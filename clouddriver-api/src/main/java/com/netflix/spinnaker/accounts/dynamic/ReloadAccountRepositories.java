@@ -18,12 +18,11 @@ package com.netflix.spinnaker.accounts.dynamic;
 
 import com.netflix.spinnaker.accounts.ReloadableAccountRepository;
 import com.netflix.spinnaker.accounts.Reloader;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.List;
 
 @Component
 @ConditionalOnProperty("accounts.reload.enabled")
@@ -36,8 +35,11 @@ public class ReloadAccountRepositories {
   @PostConstruct
   public void setup() {
     repositories.stream()
-      .filter(r -> config.getRepositories().containsKey(r.getType()))
-      .forEach(r -> accountSynchronizer.schedule(new Reloader<>(r, config.getRepositories().get(r.getType()).getReloadFrequencyMs())));
+        .filter(r -> config.getRepositories().containsKey(r.getType()))
+        .forEach(
+            r ->
+                accountSynchronizer.schedule(
+                    new Reloader<>(
+                        r, config.getRepositories().get(r.getType()).getReloadFrequencyMs())));
   }
-
 }

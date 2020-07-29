@@ -16,13 +16,12 @@
 
 package com.netflix.spinnaker.accounts.dynamic;
 
+import com.netflix.spinnaker.accounts.Reloader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
-
-import com.netflix.spinnaker.accounts.Reloader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

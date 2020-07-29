@@ -16,17 +16,15 @@
 
 package com.netflix.spinnaker.accounts.dynamic;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @ConfigurationProperties("account.dynamic")
 public class ReloadAccountRepositoryConfig {
-  @Getter
-  private Map<String, AccountRepository> repositories = new HashMap<>();
+  @Getter private Map<String, AccountRepository> repositories = new HashMap<>();
 
   @Data
   public static class AccountRepository {

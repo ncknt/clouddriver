@@ -18,6 +18,9 @@ package com.netflix.spinnaker.accounts.external;
 
 import com.netflix.spinnaker.accounts.Account;
 import com.netflix.spinnaker.accounts.ReloadableAccountRepository;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -29,10 +32,6 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Optional;
-
 @Component
 @ConditionalOnProperty("accounts.external-source.enabled")
 @RequiredArgsConstructor
@@ -41,22 +40,23 @@ public class ExternalSourceAccountRepositories implements BeanDefinitionRegistry
   private List<ReloadableAccountRepository<?>> repositories;
 
   @Override
-  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-    config.getRepositories().entrySet()
-      .stream()
-      .forEach(e -> {
-        BeanDefinition bd = this.getAccountSourceBeanDefinition(e.getKey(), e.getValue());
-        if (bd != null) {
-          registry.registerBeanDefinition(e.getKey() + "externalSourceRepository", bd);
-        }
-      });
+  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+      throws BeansException {
+    config.getRepositories().entrySet().stream()
+        .forEach(
+            e -> {
+              BeanDefinition bd = this.getAccountSourceBeanDefinition(e.getKey(), e.getValue());
+              if (bd != null) {
+                registry.registerBeanDefinition(e.getKey() + "externalSourceRepository", bd);
+              }
+            });
   }
 
-  protected BeanDefinition getAccountSourceBeanDefinition(String type, ExternalSourceAccountRepositoryConfig.AccountRepository repository) {
+  protected BeanDefinition getAccountSourceBeanDefinition(
+      String type, ExternalSourceAccountRepositoryConfig.AccountRepository repository) {
     // Find repo with type
-    Optional<ReloadableAccountRepository<?>> repo = repositories.stream()
-      .filter(r -> r.getType().equals(type))
-      .findFirst();
+    Optional<ReloadableAccountRepository<?>> repo =
+        repositories.stream().filter(r -> r.getType().equals(type)).findFirst();
 
     if (!repo.isPresent()) {
       return null;
@@ -76,7 +76,8 @@ public class ExternalSourceAccountRepositories implements BeanDefinitionRegistry
     return bd;
   }
 
-  protected Class<? extends Account> getAccountPropertiesClass(ReloadableAccountRepository<?> repository) {
+  protected Class<? extends Account> getAccountPropertiesClass(
+      ReloadableAccountRepository<?> repository) {
     for (Type type : repository.getClass().getGenericInterfaces()) {
       if (type.getClass().isAssignableFrom(Account.class)) {
         return (Class<? extends Account>) type.getClass();
@@ -86,5 +87,6 @@ public class ExternalSourceAccountRepositories implements BeanDefinitionRegistry
   }
 
   @Override
-  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException { }
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+      throws BeansException {}
 }

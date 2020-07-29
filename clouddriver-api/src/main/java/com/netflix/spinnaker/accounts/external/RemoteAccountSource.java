@@ -20,16 +20,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.netflix.spinnaker.accounts.Account;
 import com.netflix.spinnaker.accounts.AccountSource;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -43,19 +41,17 @@ public class RemoteAccountSource<T extends Account> implements AccountSource<T> 
     objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     OkHttpClient client = new OkHttpClient();
-    Request request = new Request.Builder()
-      .url(endpoint)
-      .build();
+    Request request = new Request.Builder().url(endpoint).build();
     Response response = client.newCall(request).execute();
 
     JsonParser parser = objectMapper.getFactory().createParser(response.body().byteStream());
 
-    if ( parser.nextToken() != JsonToken.START_ARRAY ) {
+    if (parser.nextToken() != JsonToken.START_ARRAY) {
       throw new IllegalArgumentException("not good");
     }
     List<T> result = new ArrayList<>();
-    while (parser.nextToken() == JsonToken.START_OBJECT ) {
-      result.add(objectMapper.readValue( parser, propertiesClass));
+    while (parser.nextToken() == JsonToken.START_OBJECT) {
+      result.add(objectMapper.readValue(parser, propertiesClass));
     }
     return result;
   }

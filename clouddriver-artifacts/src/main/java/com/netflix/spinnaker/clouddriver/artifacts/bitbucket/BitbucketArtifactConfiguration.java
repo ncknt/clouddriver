@@ -18,12 +18,10 @@
 package com.netflix.spinnaker.clouddriver.artifacts.bitbucket;
 
 import com.netflix.spinnaker.accounts.*;
-import com.netflix.spinnaker.accounts.dynamic.AccountSynchronizer;
 import com.squareup.okhttp.OkHttpClient;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
