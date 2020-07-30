@@ -23,32 +23,32 @@ import com.google.common.collect.ImmutableList;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spinnaker.clouddriver.core.AccountHealthIndicator;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.CredentialsProvider;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class KubernetesHealthIndicator
-    extends AccountHealthIndicator<KubernetesNamedAccountCredentials> {
+    extends AccountHealthIndicator<KubernetesNamedAccountCredentials<?>> {
   private static final String ID = "kubernetes";
-  private final AccountCredentialsProvider accountCredentialsProvider;
+  private final CredentialsProvider<KubernetesNamedAccountCredentials<?>>
+      accountCredentialsProvider;
 
   @Autowired
   public KubernetesHealthIndicator(
-      Registry registry, AccountCredentialsProvider accountCredentialsProvider) {
+      Registry registry,
+      CredentialsProvider<KubernetesNamedAccountCredentials<?>> accountCredentialsProvider) {
     super(ID, registry);
     this.accountCredentialsProvider = accountCredentialsProvider;
   }
 
   @Override
-  protected ImmutableList<KubernetesNamedAccountCredentials> getAccounts() {
-    return accountCredentialsProvider.getAll().stream()
-        .filter(a -> a instanceof KubernetesNamedAccountCredentials)
-        .map(a -> (KubernetesNamedAccountCredentials) a)
-        .collect(toImmutableList());
+  protected ImmutableList<KubernetesNamedAccountCredentials<?>> getAccounts() {
+    return accountCredentialsProvider.getAll().stream().collect(toImmutableList());
   }
 
   @Override
-  protected Optional<String> accountHealth(KubernetesNamedAccountCredentials accountCredentials) {
+  protected Optional<String> accountHealth(
+      KubernetesNamedAccountCredentials<?> accountCredentials) {
     try {
       accountCredentials.getCredentials().getDeclaredNamespaces();
       return Optional.empty();

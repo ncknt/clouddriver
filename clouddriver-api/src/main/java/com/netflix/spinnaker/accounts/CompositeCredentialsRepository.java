@@ -19,15 +19,15 @@ package com.netflix.spinnaker.accounts;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CompositeAccountRepository<T extends Credentials> {
-  private Map<String, AccountRepository<? extends T>> allRepositories;
+public class CompositeCredentialsRepository<T extends Credentials> {
+  private Map<String, CredentialsRepository<? extends T>> allRepositories;
 
-  public CompositeAccountRepository(List<AccountRepository<? extends T>> repositories) {
+  public CompositeCredentialsRepository(List<CredentialsRepository<? extends T>> repositories) {
     this.allRepositories = new HashMap<>();
     repositories.forEach(this::registerRepository);
   }
 
-  public void registerRepository(AccountRepository<? extends T> repository) {
+  public void registerRepository(CredentialsRepository<? extends T> repository) {
     this.allRepositories.put(repository.getType(), repository);
   }
 
@@ -37,7 +37,7 @@ public class CompositeAccountRepository<T extends Credentials> {
           "An artifact account must be supplied to download this artifact: " + accountName);
     }
 
-    AccountRepository<? extends T> repository = allRepositories.get(type);
+    CredentialsRepository<? extends T> repository = allRepositories.get(type);
     if (repository == null) {
       throw new IllegalArgumentException("No artifact type '" + type + "' registered");
     }
@@ -58,7 +58,7 @@ public class CompositeAccountRepository<T extends Credentials> {
   public List<T> getAllCredentials() {
     return Collections.unmodifiableList(
         allRepositories.values().stream()
-            .map(AccountRepository::getAll)
+            .map(CredentialsRepository::getAll)
             .flatMap(Collection::stream)
             .collect(Collectors.toList()));
   }

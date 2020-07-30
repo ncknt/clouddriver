@@ -17,7 +17,7 @@
 package com.netflix.spinnaker.accounts.external;
 
 import com.netflix.spinnaker.accounts.Account;
-import com.netflix.spinnaker.accounts.ReloadableAccountRepository;
+import com.netflix.spinnaker.accounts.ReloadableCredentialsRepository;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ExternalSourceAccountRepositories implements BeanDefinitionRegistryPostProcessor {
   private final ExternalSourceAccountRepositoryConfig config;
-  private List<ReloadableAccountRepository<?>> repositories;
+  private List<ReloadableCredentialsRepository<?>> repositories;
 
   @Override
   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
@@ -55,7 +55,7 @@ public class ExternalSourceAccountRepositories implements BeanDefinitionRegistry
   protected BeanDefinition getAccountSourceBeanDefinition(
       String type, ExternalSourceAccountRepositoryConfig.AccountRepository repository) {
     // Find repo with type
-    Optional<ReloadableAccountRepository<?>> repo =
+    Optional<ReloadableCredentialsRepository<?>> repo =
         repositories.stream().filter(r -> r.getType().equals(type)).findFirst();
 
     if (!repo.isPresent()) {
@@ -77,7 +77,7 @@ public class ExternalSourceAccountRepositories implements BeanDefinitionRegistry
   }
 
   protected Class<? extends Account> getAccountPropertiesClass(
-      ReloadableAccountRepository<?> repository) {
+      ReloadableCredentialsRepository<?> repository) {
     for (Type type : repository.getClass().getGenericInterfaces()) {
       if (type.getClass().isAssignableFrom(Account.class)) {
         return (Class<? extends Account>) type.getClass();

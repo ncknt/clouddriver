@@ -39,8 +39,8 @@ class BitbucketArtifactConfiguration {
   @Bean
   @ConditionalOnMissingBean(
       value = BitbucketArtifactCredentials.class,
-      parameterizedContainer = AccountRepository.class)
-  AccountRepository<BitbucketArtifactCredentials> bitbucketRepository(
+      parameterizedContainer = CredentialsRepository.class)
+  CredentialsRepository<BitbucketArtifactCredentials> bitbucketRepository(
       OkHttpClient okHttpClient,
       Optional<AccountSource<BitbucketArtifactAccount>> customAccountSource) {
     return AccountRepositoryDescriptor

@@ -25,11 +25,15 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import com.netflix.spectator.api.NoopRegistry;
 import com.netflix.spectator.api.Registry;
+import com.netflix.spinnaker.accounts.CredentialsRepository;
+import com.netflix.spinnaker.accounts.MapBackedCredentialsRepository;
+import com.netflix.spinnaker.clouddriver.kubernetes.KubernetesCloudProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.config.KubernetesConfigurationProperties;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentialFactory;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentials;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.*;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -55,7 +59,7 @@ final class KubernetesHealthIndicatorTest {
 
   @Test
   void healthyWithNoAccounts() {
-    AccountCredentialsProvider provider = stubAccountCredentialsProvider(ImmutableList.of());
+    CredentialsProvider provider = stubAccountCredentialsProvider(ImmutableList.of());
 
     KubernetesHealthIndicator healthIndicator = new KubernetesHealthIndicator(REGISTRY, provider);
 
@@ -68,9 +72,8 @@ final class KubernetesHealthIndicatorTest {
 
   @Test
   void healthyWithNoKubernetesAccounts() {
-    AccountCredentialsProvider provider =
-        stubAccountCredentialsProvider(
-            ImmutableList.of(nonKubernetesAccount("aws"), nonKubernetesAccount("gce")));
+    CredentialsProvider<KubernetesNamedAccountCredentials<?>> provider =
+        stubAccountCredentialsProvider(Collections.emptyList());
 
     KubernetesHealthIndicator healthIndicator = new KubernetesHealthIndicator(REGISTRY, provider);
 
@@ -83,7 +86,7 @@ final class KubernetesHealthIndicatorTest {
 
   @Test
   void healthyWithOnlyHealthyAccounts() {
-    AccountCredentialsProvider provider =
+    CredentialsProvider<KubernetesNamedAccountCredentials<?>> provider =
         stubAccountCredentialsProvider(ImmutableList.of(healthyAccount("test")));
 
     KubernetesHealthIndicator healthIndicator = new KubernetesHealthIndicator(REGISTRY, provider);
@@ -98,7 +101,7 @@ final class KubernetesHealthIndicatorTest {
   @Test
   void reportsErrorForUnhealthyAccount() {
     String unhealthy = "unhealthy";
-    AccountCredentialsProvider provider =
+    CredentialsProvider<KubernetesNamedAccountCredentials<?>> provider =
         stubAccountCredentialsProvider(ImmutableList.of(unhealthyAccount(unhealthy)));
 
     KubernetesHealthIndicator healthIndicator = new KubernetesHealthIndicator(REGISTRY, provider);
@@ -115,7 +118,7 @@ final class KubernetesHealthIndicatorTest {
     String healthy = "healthy";
     String unhealthy1 = "unhealthy1";
     String unhealthy2 = "unhealthy2";
-    AccountCredentialsProvider provider =
+    CredentialsProvider<KubernetesNamedAccountCredentials<?>> provider =
         stubAccountCredentialsProvider(
             ImmutableList.of(
                 healthyAccount(healthy),
@@ -159,12 +162,13 @@ final class KubernetesHealthIndicatorTest {
     return credentials;
   }
 
-  private static AccountCredentialsProvider stubAccountCredentialsProvider(
-      Iterable<AccountCredentials> accounts) {
-    AccountCredentialsRepository accountRepository = new MapBackedAccountCredentialsRepository();
-    for (AccountCredentials account : accounts) {
-      accountRepository.save(account.getName(), account);
+  private static CredentialsProvider<KubernetesNamedAccountCredentials<?>>
+      stubAccountCredentialsProvider(Iterable<KubernetesNamedAccountCredentials<?>> accounts) {
+    CredentialsRepository<KubernetesNamedAccountCredentials<?>> credentialsRepository =
+        new MapBackedCredentialsRepository<>(KubernetesCloudProvider.ID);
+    for (KubernetesNamedAccountCredentials<?> account : accounts) {
+      credentialsRepository.save(account.getName(), account);
     }
-    return new DefaultAccountCredentialsProvider(accountRepository);
+    return new TypedAccountCredentialsProvider<>(credentialsRepository);
   }
 }

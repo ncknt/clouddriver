@@ -17,11 +17,11 @@
 
 package com.netflix.spinnaker.clouddriver.kubernetes.caching.view.provider;
 
+import com.netflix.spinnaker.accounts.CredentialsRepository;
 import com.netflix.spinnaker.clouddriver.kubernetes.description.ResourcePropertyRegistry;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesV2Credentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentials;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsRepository;
 import com.netflix.spinnaker.kork.annotations.NonnullByDefault;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -29,11 +29,13 @@ import org.springframework.stereotype.Component;
 @Component
 @NonnullByDefault
 class KubernetesAccountResolver {
-  private final AccountCredentialsRepository credentialsRepository;
+  private final CredentialsRepository<KubernetesNamedAccountCredentials<KubernetesV2Credentials>>
+      credentialsRepository;
   private final ResourcePropertyRegistry globalResourcePropertyRegistry;
 
   KubernetesAccountResolver(
-      AccountCredentialsRepository credentialsRepository,
+      CredentialsRepository<KubernetesNamedAccountCredentials<KubernetesV2Credentials>>
+          credentialsRepository,
       ResourcePropertyRegistry globalResourcePropertyRegistry) {
     this.credentialsRepository = credentialsRepository;
     this.globalResourcePropertyRegistry = globalResourcePropertyRegistry;

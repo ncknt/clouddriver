@@ -16,7 +16,7 @@
 
 package com.netflix.spinnaker.accounts.dynamic;
 
-import com.netflix.spinnaker.accounts.ReloadableAccountRepository;
+import com.netflix.spinnaker.accounts.ReloadableCredentialsRepository;
 import com.netflix.spinnaker.accounts.Reloader;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -25,11 +25,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty("accounts.reload.enabled")
+@ConditionalOnProperty("accounts.dynamic.enabled")
 @RequiredArgsConstructor
 public class ReloadAccountRepositories {
   private final ReloadAccountRepositoryConfig config;
-  private final List<ReloadableAccountRepository<?>> repositories;
+  private final List<ReloadableCredentialsRepository<?>> repositories;
   private final AccountSynchronizer accountSynchronizer;
 
   @PostConstruct

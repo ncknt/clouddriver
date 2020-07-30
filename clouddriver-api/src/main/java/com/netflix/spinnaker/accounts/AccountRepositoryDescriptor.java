@@ -29,11 +29,11 @@ public class AccountRepositoryDescriptor<T extends Credentials, U extends Accoun
   private Optional<CredentialsLifecycleHandler<T>> eventHandler;
   private Optional<AccountSource<U>> customAccountSource;
 
-  public AccountRepository<T> createRepository() {
+  public CredentialsRepository<T> createRepository() {
     AccountSource<U> source = customAccountSource.orElse(() -> springAccountSource.get());
     CredentialsLifecycleHandler<T> handler = eventHandler.orElse(null);
-    MapBackedAccountRepository repository =
-        new MapBackedAccountRepository<>(type, source, parser, handler);
+    MapBackedCredentialsRepository repository =
+        new MapBackedCredentialsRepository<>(type, source, parser, handler);
     return repository;
   }
 }

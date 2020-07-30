@@ -26,6 +26,8 @@ import com.netflix.spinnaker.clouddriver.kubernetes.model.NoopManifestProvider;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentialFactory;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.CredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.TypedAccountCredentialsProvider;
 import java.util.Optional;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -53,26 +55,36 @@ public class KubernetesConfiguration {
   @Bean
   @ConditionalOnMissingBean(
       value = KubernetesNamedAccountCredentials.class,
-      parameterizedContainer = AccountRepository.class)
-  public AccountRepository<KubernetesNamedAccountCredentials> kubernetesAccountRepository(
+      parameterizedContainer = CredentialsRepository.class)
+  public CredentialsRepository<KubernetesNamedAccountCredentials<?>> kubernetesAccountRepository(
       KubernetesConfigurationProperties configurationProperties,
       Optional<AccountSource<KubernetesConfigurationProperties.ManagedAccount>> customAccountSource,
-      KubernetesCredentialFactory kubernetesCredentialFactory,
-      CredentialsLifecycleHandler<KubernetesNamedAccountCredentials> eventHandler) {
+      KubernetesCredentialFactory<?> kubernetesCredentialFactory,
+      CredentialsLifecycleHandler<KubernetesNamedAccountCredentials<?>> eventHandler) {
     return AccountRepositoryDescriptor
-        .<KubernetesNamedAccountCredentials, KubernetesConfigurationProperties.ManagedAccount>
+        .<KubernetesNamedAccountCredentials<?>, KubernetesConfigurationProperties.ManagedAccount>
             builder()
         .type(KubernetesCloudProvider.ID)
         .customAccountSource(customAccountSource)
         .springAccountSource(configurationProperties::getAccounts)
-        .parser(a -> new KubernetesNamedAccountCredentials(a, kubernetesCredentialFactory))
+        .parser(a -> new KubernetesNamedAccountCredentials<>(a, kubernetesCredentialFactory))
         .build()
         .createRepository();
   }
 
   @Bean
+  @ConditionalOnMissingBean(
+      value = KubernetesNamedAccountCredentials.class,
+      parameterizedContainer = AccountCredentialsProvider.class)
+  public CredentialsProvider<KubernetesNamedAccountCredentials<?>> kubernetesCredentialsProvider(
+      CredentialsRepository<KubernetesNamedAccountCredentials<?>> repository) {
+    return new TypedAccountCredentialsProvider<>(repository);
+  }
+
+  @Bean
   public KubernetesHealthIndicator kubernetesHealthIndicator(
-      Registry registry, AccountCredentialsProvider accountCredentialsProvider) {
+      Registry registry,
+      CredentialsProvider<KubernetesNamedAccountCredentials<?>> accountCredentialsProvider) {
     return new KubernetesHealthIndicator(registry, accountCredentialsProvider);
   }
 

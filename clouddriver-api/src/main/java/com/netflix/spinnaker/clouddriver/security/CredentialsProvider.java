@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.accounts;
+package com.netflix.spinnaker.clouddriver.security;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Set;
 
-@Slf4j
-@RequiredArgsConstructor
-public class Reloader<T extends Credentials> implements Runnable {
-  private final ReloadableCredentialsRepository<T> reloadableAccountRepository;
-  @Getter private final long frequencyMs;
+public interface CredentialsProvider<T extends AccountCredentials<?>> {
 
-  public void run() {
-    try {
-      reloadableAccountRepository.load();
-    } catch (Exception e) {
-      log.error("Error reloading repository", e);
-    }
-  }
+  /**
+   * Returns all of the accounts known to the repository of this provider.
+   *
+   * @return a set of account names
+   */
+  Set<T> getAll();
+
+  /**
+   * Returns a specific {@link AccountCredentials} object a specified name
+   *
+   * @param name the name of the account
+   * @return account credentials object
+   */
+  AccountCredentials getCredentials(String name);
 }

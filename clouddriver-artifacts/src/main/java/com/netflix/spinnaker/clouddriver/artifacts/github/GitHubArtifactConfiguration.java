@@ -18,9 +18,9 @@
 package com.netflix.spinnaker.clouddriver.artifacts.github;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.spinnaker.accounts.AccountRepository;
 import com.netflix.spinnaker.accounts.AccountRepositoryDescriptor;
 import com.netflix.spinnaker.accounts.AccountSource;
+import com.netflix.spinnaker.accounts.CredentialsRepository;
 import com.squareup.okhttp.OkHttpClient;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +43,8 @@ class GitHubArtifactConfiguration {
   @Bean
   @ConditionalOnMissingBean(
       value = GitHubArtifactCredentials.class,
-      parameterizedContainer = AccountRepository.class)
-  AccountRepository<GitHubArtifactCredentials> bitbucketRepository(
+      parameterizedContainer = CredentialsRepository.class)
+  CredentialsRepository<GitHubArtifactCredentials> githubRepository(
       OkHttpClient okHttpClient,
       Optional<AccountSource<GitHubArtifactAccount>> customAccountSource) {
     return AccountRepositoryDescriptor.<GitHubArtifactCredentials, GitHubArtifactAccount>builder()

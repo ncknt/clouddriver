@@ -24,7 +24,9 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.netflix.spinnaker.accounts.MapBackedCredentialsRepository;
 import com.netflix.spinnaker.clouddriver.artifacts.ArtifactCredentialsRepository;
+import com.netflix.spinnaker.clouddriver.artifacts.config.ArtifactAccount;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.artifacts.ArtifactCredentialsFromString;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.cache.CacheRepository;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.client.CloudFoundryClient;
@@ -89,15 +91,36 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
   private List<String> accounts =
       List.of("test", "sourceAccount", "sourceAccount1", "sourceAccount2", "destinationAccount");
 
+  static class NamedSimpleAccount implements ArtifactAccount {
+    private final String name;
+
+    NamedSimpleAccount(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
+  }
+
   private final ArtifactCredentialsRepository artifactCredentialsRepository =
       new ArtifactCredentialsRepository(
           Collections.singletonList(
-              accounts
-                  .map(
-                      account ->
-                          new ArtifactCredentialsFromString(
-                              account, List.of("test").asJava(), "applications: [{instances: 42}]"))
-                  .asJava()));
+              new MapBackedCredentialsRepository<>(
+                  "test",
+                  () -> accounts.toStream().map(a -> new NamedSimpleAccount(a)).asJava(),
+                  a ->
+                      new ArtifactCredentialsFromString(
+                          a.getName(), List.of("test").asJava(), "applications: [{instances: 42}]"),
+                  null)));
+  //              accounts
+  //                  .map(
+  //                      account -> new MapBackedAccountRepository("test", () -> )
+  //
+  //                          new ArtifactCredentialsFromString(
+  //                              account, List.of("test").asJava(), "applications: [{instances:
+  // 42}]"))
+  //                  .asJava()));
 
   private final AccountCredentialsRepository accountCredentialsRepository =
       new MapBackedAccountCredentialsRepository();

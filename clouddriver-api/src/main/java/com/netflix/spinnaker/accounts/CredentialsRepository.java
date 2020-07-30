@@ -16,6 +16,18 @@
 
 package com.netflix.spinnaker.accounts;
 
-public interface ReloadableAccountRepository<T extends Credentials> extends AccountRepository<T> {
-  void load();
+import java.util.Set;
+
+public interface CredentialsRepository<T extends Credentials> {
+  T getOne(String key);
+
+  Set<T> getAll();
+
+  T save(String key, T account);
+
+  T update(String key, T account);
+
+  void delete(String key);
+
+  String getType();
 }

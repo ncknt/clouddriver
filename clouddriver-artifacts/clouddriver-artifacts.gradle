@@ -4,6 +4,7 @@ sourceSets.main.java.srcDirs = ['src/main/java']
 dependencies {
   implementation project(":clouddriver-api")
   implementation project(":clouddriver-core")
+  implementation project(":clouddriver-security")
 
   compileOnly "org.projectlombok:lombok"
   annotationProcessor "org.projectlombok:lombok"

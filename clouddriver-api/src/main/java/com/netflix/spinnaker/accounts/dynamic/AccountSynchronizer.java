@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty("accounts.reload.enabled")
+@ConditionalOnProperty("accounts.dynamic.enabled")
 public class AccountSynchronizer {
   @Autowired private List<Reloader> reloaders = new ArrayList<>();
   private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);

@@ -17,25 +17,24 @@
 
 package com.netflix.spinnaker.clouddriver.artifacts;
 
-import com.netflix.spinnaker.accounts.AccountRepository;
-import com.netflix.spinnaker.accounts.CompositeAccountRepository;
+import com.netflix.spinnaker.accounts.CompositeCredentialsRepository;
+import com.netflix.spinnaker.accounts.CredentialsRepository;
 import com.netflix.spinnaker.clouddriver.artifacts.config.ArtifactCredentials;
+import com.netflix.spinnaker.clouddriver.security.StaticCredentialsRepository;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ArtifactCredentialsRepository extends CompositeAccountRepository<ArtifactCredentials> {
-  //  @Getter private final List<ArtifactCredentials> allCredentials;
+public class ArtifactCredentialsRepository
+    extends CompositeCredentialsRepository<ArtifactCredentials> {
 
   public ArtifactCredentialsRepository(
-      List<AccountRepository<? extends ArtifactCredentials>> repositories) {
+      List<List<? extends ArtifactCredentials>> staticCredentials,
+      List<CredentialsRepository<? extends ArtifactCredentials>> repositories) {
     super(repositories);
-    //    this.allCredentials =
-    //        Collections.unmodifiableList(
-    //            allCredentials.stream()
-    //                .filter(Objects::nonNull)
-    //                .flatMap(Collection::stream)
-    //                .collect(Collectors.toList()));
+    staticCredentials.stream()
+        .filter(l -> !l.isEmpty())
+        .forEach(l -> registerRepository(new StaticCredentialsRepository<>(l.get(0).getType(), l)));
   }
 
   //  private ArtifactCredentials getCredentials(String accountName) {

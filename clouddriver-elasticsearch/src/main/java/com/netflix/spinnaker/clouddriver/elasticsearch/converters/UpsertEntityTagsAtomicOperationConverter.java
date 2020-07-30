@@ -26,7 +26,7 @@ import com.netflix.spinnaker.clouddriver.elasticsearch.ops.UpsertEntityTagsAtomi
 import com.netflix.spinnaker.clouddriver.model.EntityTags;
 import com.netflix.spinnaker.clouddriver.orchestration.AtomicOperation;
 import com.netflix.spinnaker.clouddriver.security.AbstractAtomicOperationsCredentialsSupport;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.CompositeCredentialsRepository;
 import com.netflix.spinnaker.kork.core.RetrySupport;
 import java.util.Collection;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class UpsertEntityTagsAtomicOperationConverter
   private final ObjectMapper objectMapper;
   private final RetrySupport retrySupport;
   private final Front50Service front50Service;
-  private final AccountCredentialsProvider accountCredentialsProvider;
+  private final CompositeCredentialsRepository accountCredentialsProvider;
   private final ElasticSearchEntityTagsProvider entityTagsProvider;
 
   @Autowired
@@ -47,7 +47,7 @@ public class UpsertEntityTagsAtomicOperationConverter
       ObjectMapper objectMapper,
       RetrySupport retrySupport,
       Front50Service front50Service,
-      AccountCredentialsProvider accountCredentialsProvider,
+      CompositeCredentialsRepository accountCredentialsProvider,
       ElasticSearchEntityTagsProvider entityTagsProvider) {
     this.objectMapper =
         objectMapper

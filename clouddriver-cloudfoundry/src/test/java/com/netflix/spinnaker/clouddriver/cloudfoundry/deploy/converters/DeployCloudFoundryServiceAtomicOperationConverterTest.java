@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.netflix.spinnaker.accounts.MapBackedCredentialsRepository;
 import com.netflix.spinnaker.clouddriver.artifacts.ArtifactCredentialsRepository;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.artifacts.ArtifactCredentialsFromString;
 import com.netflix.spinnaker.clouddriver.cloudfoundry.cache.CacheRepository;
@@ -84,18 +85,25 @@ class DeployCloudFoundryServiceAtomicOperationConverterTest {
   private final ArtifactCredentialsRepository artifactCredentialsRepository =
       new ArtifactCredentialsRepository(
           Collections.singletonList(
-              Collections.singletonList(
-                  new ArtifactCredentialsFromString(
-                      "test",
-                      List.of("test").asJava(),
-                      "service_instance_name: my-service-instance-name\n"
-                          + "service: my-service\n"
-                          + "service_plan: my-service-plan\n"
-                          + "tags:\n"
-                          + "- tag1\n"
-                          + "updatable: false\n"
-                          + "parameters: |\n"
-                          + "  { \"foo\": \"bar\" }\n"))));
+              new MapBackedCredentialsRepository<>(
+                  "test",
+                  () ->
+                      Collections.singletonList(
+                          new DeployCloudFoundryServerGroupAtomicOperationConverterTest
+                              .NamedSimpleAccount("test")),
+                  a ->
+                      new ArtifactCredentialsFromString(
+                          a.getName(),
+                          List.of("test").asJava(),
+                          "service_instance_name: my-service-instance-name\n"
+                              + "service: my-service\n"
+                              + "service_plan: my-service-plan\n"
+                              + "tags:\n"
+                              + "- tag1\n"
+                              + "updatable: false\n"
+                              + "parameters: |\n"
+                              + "  { \"foo\": \"bar\" }\n"),
+                  null)));
 
   private final AccountCredentialsRepository accountCredentialsRepository =
       new MapBackedAccountCredentialsRepository();

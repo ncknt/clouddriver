@@ -24,10 +24,11 @@ import com.netflix.spinnaker.clouddriver.kubernetes.description.manifest.Kuberne
 import com.netflix.spinnaker.clouddriver.kubernetes.model.KubernetesV2JobStatus;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.Manifest;
 import com.netflix.spinnaker.clouddriver.kubernetes.model.ManifestProvider;
+import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesSelectorList;
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesV2Credentials;
 import com.netflix.spinnaker.clouddriver.model.JobProvider;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.CredentialsProvider;
 import io.kubernetes.client.openapi.models.V1Job;
 import io.kubernetes.client.openapi.models.V1Pod;
 import java.util.List;
@@ -44,11 +45,12 @@ import org.springframework.stereotype.Component;
 public class KubernetesV2JobProvider implements JobProvider<KubernetesV2JobStatus> {
 
   @Getter private String platform = "kubernetes";
-  private final AccountCredentialsProvider accountCredentialsProvider;
+  private final CredentialsProvider<KubernetesNamedAccountCredentials<?>>
+      accountCredentialsProvider;
   private final List<ManifestProvider> manifestProviderList;
 
   KubernetesV2JobProvider(
-      AccountCredentialsProvider accountCredentialsProvider,
+      CredentialsProvider<KubernetesNamedAccountCredentials<?>> accountCredentialsProvider,
       List<ManifestProvider> manifestProviderList) {
     this.accountCredentialsProvider = accountCredentialsProvider;
     this.manifestProviderList = manifestProviderList;

@@ -28,7 +28,7 @@ import com.netflix.spinnaker.clouddriver.elasticsearch.model.ElasticSearchEntity
 import com.netflix.spinnaker.clouddriver.model.EntityTags;
 import com.netflix.spinnaker.clouddriver.orchestration.AtomicOperation;
 import com.netflix.spinnaker.clouddriver.security.AccountCredentials;
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider;
+import com.netflix.spinnaker.clouddriver.security.CompositeCredentialsRepository;
 import com.netflix.spinnaker.kork.core.RetrySupport;
 import com.netflix.spinnaker.security.AuthenticatedRequest;
 import java.util.*;
@@ -45,14 +45,14 @@ public class BulkUpsertEntityTagsAtomicOperation
 
   private final RetrySupport retrySupport;
   private final Front50Service front50Service;
-  private final AccountCredentialsProvider accountCredentialsProvider;
+  private final CompositeCredentialsRepository accountCredentialsProvider;
   private final ElasticSearchEntityTagsProvider entityTagsProvider;
   private final BulkUpsertEntityTagsDescription bulkUpsertEntityTagsDescription;
 
   public BulkUpsertEntityTagsAtomicOperation(
       RetrySupport retrySupport,
       Front50Service front50Service,
-      AccountCredentialsProvider accountCredentialsProvider,
+      CompositeCredentialsRepository accountCredentialsProvider,
       ElasticSearchEntityTagsProvider entityTagsProvider,
       BulkUpsertEntityTagsDescription bulkUpsertEntityTagsDescription) {
     this.retrySupport = retrySupport;
@@ -216,7 +216,7 @@ public class BulkUpsertEntityTagsAtomicOperation
   }
 
   public static EntityRefIdBuilder.EntityRefId entityRefId(
-      AccountCredentialsProvider accountCredentialsProvider, EntityTags description) {
+      CompositeCredentialsRepository accountCredentialsProvider, EntityTags description) {
     EntityTags.EntityRef entityRef = description.getEntityRef();
     String entityRefAccount = entityRef.getAccount();
     String entityRefAccountId = entityRef.getAccountId();
@@ -344,10 +344,10 @@ public class BulkUpsertEntityTagsAtomicOperation
   }
 
   private static AccountCredentials lookupAccountCredentialsByAccountIdOrName(
-      AccountCredentialsProvider accountCredentialsProvider,
+      CompositeCredentialsRepository accountCredentialsProvider,
       String entityRefAccountIdOrName,
       String type) {
-    return accountCredentialsProvider.getAll().stream()
+    return accountCredentialsProvider.getAllCredentials().stream()
         .filter(
             c ->
                 entityRefAccountIdOrName.equals(c.getAccountId())
