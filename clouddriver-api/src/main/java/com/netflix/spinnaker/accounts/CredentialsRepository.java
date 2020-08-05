@@ -23,9 +23,9 @@ public interface CredentialsRepository<T extends Credentials> {
 
   Set<T> getAll();
 
-  T save(String key, T account);
+  T save(String key, T credentials);
 
-  T update(String key, T account);
+  T update(String key, T credentials);
 
   void delete(String key);
 

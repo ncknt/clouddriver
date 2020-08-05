@@ -18,9 +18,9 @@ package com.netflix.spinnaker.accounts;
 
 public interface CredentialsLifecycleHandler<T extends Credentials> {
 
-  void accountAdded(T account);
+  void credentialsAdded(T credentials);
 
-  void accountUpdated(T account);
+  void credentialsUpdated(T credentials);
 
-  void accountDeleted(T account);
+  void credentialsDeleted(T credentials);
 }

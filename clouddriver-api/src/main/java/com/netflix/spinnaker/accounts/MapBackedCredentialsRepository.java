@@ -22,7 +22,7 @@ import lombok.Getter;
 
 public class MapBackedCredentialsRepository<P extends Account, T extends Credentials>
     implements ReloadableCredentialsRepository<T> {
-  protected Map<String, T> accounts = new HashMap<>();
+  protected Map<String, T> credentials = new HashMap<>();
   protected AccountSource<P> accountSource;
   protected CredentialsLifecycleHandler<T> eventHandler;
   protected AccountParser<P, T> parser;
@@ -58,20 +58,20 @@ public class MapBackedCredentialsRepository<P extends Account, T extends Credent
         accountProps.stream().map(P::getName).collect(Collectors.toSet());
 
     // deleted accounts
-    accounts.keySet().stream()
+    credentials.keySet().stream()
         .filter(name -> !latestAccountNames.contains(name))
         .forEach(this::delete);
 
     // modified accounts
     accountProps.stream()
-        .filter(p -> this.accounts.containsKey(p.getName()))
+        .filter(p -> this.credentials.containsKey(p.getName()))
         .map(parser::parse)
         .filter(Objects::nonNull)
         .forEach(a -> update(a.getName(), a));
 
     // new accounts
     accountProps.stream()
-        .filter(p -> !this.accounts.containsKey(p.getName()))
+        .filter(p -> !this.credentials.containsKey(p.getName()))
         .map(parser::parse)
         .filter(Objects::nonNull)
         .forEach(a -> save(a.getName(), a));
@@ -79,35 +79,35 @@ public class MapBackedCredentialsRepository<P extends Account, T extends Credent
 
   @Override
   public T getOne(String key) {
-    return accounts.get(key);
+    return credentials.get(key);
   }
 
   @Override
   public Set<T> getAll() {
-    return new HashSet<>(accounts.values());
+    return new HashSet<>(credentials.values());
   }
 
   @Override
-  public T save(String key, T account) {
+  public T save(String key, T credentials) {
     if (eventHandler != null) {
-      eventHandler.accountAdded(account);
+      eventHandler.credentialsAdded(credentials);
     }
-    return accounts.put(key, account);
+    return this.credentials.put(key, credentials);
   }
 
   @Override
-  public T update(String key, T account) {
+  public T update(String key, T credentials) {
     if (eventHandler != null) {
-      eventHandler.accountUpdated(account);
+      eventHandler.credentialsUpdated(credentials);
     }
-    return accounts.put(key, account);
+    return this.credentials.put(key, credentials);
   }
 
   @Override
   public void delete(String key) {
-    T account = accounts.remove(key);
-    if (account != null && eventHandler != null) {
-      eventHandler.accountDeleted(account);
+    T credentials = this.credentials.remove(key);
+    if (credentials != null && eventHandler != null) {
+      eventHandler.credentialsDeleted(credentials);
     }
   }
 }

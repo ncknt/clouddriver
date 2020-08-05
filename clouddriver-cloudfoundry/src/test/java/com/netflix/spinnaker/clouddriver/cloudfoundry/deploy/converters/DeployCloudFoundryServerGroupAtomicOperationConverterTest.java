@@ -105,6 +105,7 @@ class DeployCloudFoundryServerGroupAtomicOperationConverterTest {
 
   private final ArtifactCredentialsRepository artifactCredentialsRepository =
       new ArtifactCredentialsRepository(
+          Collections.emptyList(),
           Collections.singletonList(
               new MapBackedCredentialsRepository<>(
                   "test",

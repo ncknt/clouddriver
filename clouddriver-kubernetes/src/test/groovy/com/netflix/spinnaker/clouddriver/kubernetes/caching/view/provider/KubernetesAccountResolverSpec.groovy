@@ -17,18 +17,18 @@
 
 package com.netflix.spinnaker.clouddriver.kubernetes.caching.view.provider
 
+import com.netflix.spinnaker.accounts.CredentialsRepository
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesCredentials
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials
 import com.netflix.spinnaker.clouddriver.kubernetes.description.GlobalResourcePropertyRegistry
 import com.netflix.spinnaker.clouddriver.kubernetes.description.ResourcePropertyRegistry
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesV2Credentials
 import com.netflix.spinnaker.clouddriver.security.AccountCredentials
-import com.netflix.spinnaker.clouddriver.security.AccountCredentialsRepository
 import spock.lang.Specification
 
 class KubernetesAccountResolverSpec extends Specification {
   String ACCOUNT_NAME = "test"
-  AccountCredentialsRepository credentialsRepository = Mock(AccountCredentialsRepository)
+  CredentialsRepository<KubernetesNamedAccountCredentials<KubernetesV2Credentials>> credentialsRepository = Mock(CredentialsRepository)
   ResourcePropertyRegistry globalResourcePropertyRegistry = Mock(GlobalResourcePropertyRegistry)
 
   void "returns an account in the repository if and only if it is a kubernetes v2 account"() {

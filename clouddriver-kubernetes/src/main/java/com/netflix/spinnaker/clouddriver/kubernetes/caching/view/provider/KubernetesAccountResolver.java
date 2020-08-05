@@ -43,11 +43,7 @@ class KubernetesAccountResolver {
 
   Optional<KubernetesV2Credentials> getCredentials(String account) {
     return Optional.ofNullable(credentialsRepository.getOne(account))
-        .filter(c -> c instanceof KubernetesNamedAccountCredentials)
-        .map(c -> (KubernetesNamedAccountCredentials) c)
-        .map(AccountCredentials::getCredentials)
-        .filter(c -> c instanceof KubernetesV2Credentials)
-        .map(c -> (KubernetesV2Credentials) c);
+        .map(AccountCredentials::getCredentials);
   }
 
   ResourcePropertyRegistry getResourcePropertyRegistry(String account) {

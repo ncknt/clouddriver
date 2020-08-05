@@ -39,39 +39,39 @@ public class KubernetesCredentialsLifecycleHandler
   protected final CatsModule catsModule;
 
   @Override
-  public void accountAdded(KubernetesNamedAccountCredentials account) {
+  public void credentialsAdded(KubernetesNamedAccountCredentials credentials) {
     // Attempt to get namespaces to resolve any connectivity error without blocking /credentials
-    List<String> namespaces = account.getCredentials().getDeclaredNamespaces();
+    List<String> namespaces = credentials.getCredentials().getDeclaredNamespaces();
     if (namespaces.isEmpty()) {
       log.warn(
           "New or modified account {} did not return any namespace and could be unreachable or misconfigured",
-          account.getName());
+          credentials.getName());
     }
 
     List<Agent> newlyAddedAgents =
         (List<Agent>)
-            cachingAgentDispatcher.buildAllCachingAgents(account).stream()
+            cachingAgentDispatcher.buildAllCachingAgents(credentials).stream()
                 .map(c -> (Agent) c)
                 .collect(Collectors.toList());
 
-    log.info("Adding {} agents for account {}", newlyAddedAgents.size(), account.getName());
+    log.info("Adding {} agents for account {}", newlyAddedAgents.size(), credentials.getName());
     provider.stageAgents(newlyAddedAgents);
   }
 
   @Override
-  public void accountUpdated(KubernetesNamedAccountCredentials account) {
+  public void credentialsUpdated(KubernetesNamedAccountCredentials credentials) {
     // Attempt to get namespaces to resolve any connectivity error without blocking /credentials
-    List<String> namespaces = account.getCredentials().getDeclaredNamespaces();
+    List<String> namespaces = credentials.getCredentials().getDeclaredNamespaces();
     if (namespaces.isEmpty()) {
       log.warn(
           "New or modified account {} did not return any namespace and could be unreachable or misconfigured",
-          account.getName());
+          credentials.getName());
     }
   }
 
   @Override
-  public void accountDeleted(KubernetesNamedAccountCredentials account) {
+  public void credentialsDeleted(KubernetesNamedAccountCredentials credentials) {
     ProviderUtils.unscheduleAndDeregisterAgents(
-        Collections.singleton(account.getName()), catsModule);
+        Collections.singleton(credentials.getName()), catsModule);
   }
 }

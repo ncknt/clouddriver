@@ -17,5 +17,5 @@
 package com.netflix.spinnaker.accounts;
 
 public interface AccountParser<T extends Account, U extends Credentials> {
-  U parse(T props);
+  U parse(T account);
 }
