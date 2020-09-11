@@ -21,6 +21,7 @@ import com.netflix.spinnaker.clouddriver.kubernetes.converter.manifest.Kubernete
 import com.netflix.spinnaker.clouddriver.kubernetes.security.KubernetesNamedAccountCredentials
 import com.netflix.spinnaker.clouddriver.kubernetes.description.manifest.KubernetesManifest
 import com.netflix.spinnaker.clouddriver.security.AccountCredentialsProvider
+import com.netflix.spinnaker.credentials.CredentialsRepository
 import groovy.text.SimpleTemplateEngine
 import spock.lang.Specification
 
@@ -28,12 +29,12 @@ import spock.lang.Specification
 class KubernetesDeployManifestConverterTest extends Specification {
 
   def converter = new KubernetesDeployManifestConverter(
-    Mock(AccountCredentialsProvider), new ObjectMapper(), null)
+    Mock(CredentialsRepository), new ObjectMapper(), null)
   def inputMap = new HashMap()
   def manifestList = new ArrayList()
 
   def setup() {
-    converter.accountCredentialsProvider.getCredentials("kubernetes") >> Mock(KubernetesNamedAccountCredentials)
+    converter.credentialsRepository.getOne("kubernetes") >> Mock(KubernetesNamedAccountCredentials)
     converter.objectMapper = new ObjectMapper()
 
     inputMap.put("account", "kubernetes")

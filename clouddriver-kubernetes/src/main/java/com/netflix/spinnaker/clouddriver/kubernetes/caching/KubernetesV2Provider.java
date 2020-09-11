@@ -44,6 +44,10 @@ public class KubernetesV2Provider extends AgentSchedulerAware implements Provide
     stagedAgents.addAll(agents);
   }
 
+  public void addAgents(Collection<? extends Agent> newAgents) {
+    agents.addAll(newAgents);
+  }
+
   public void clearStagedAgents() {
     stagedAgents.clear();
   }

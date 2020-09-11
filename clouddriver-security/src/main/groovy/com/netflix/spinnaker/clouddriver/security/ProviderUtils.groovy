@@ -68,7 +68,7 @@ public class ProviderUtils {
   /**
    * Use the agent scheduler associated with the provider to schedule each agent.
    */
-  public static void rescheduleAgents(Provider provider, List<Agent> agentsToSchedule) {
+  public static void rescheduleAgents(Provider provider, Collection<? extends Agent> agentsToSchedule) {
     if (provider instanceof AgentSchedulerAware) {
       AgentScheduler agentScheduler = ((AgentSchedulerAware)provider).agentScheduler
 
